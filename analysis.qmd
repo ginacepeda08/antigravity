@@ -1,0 +1,82 @@
+
+---
+title: "Exploring Storms"
+author: "Gina Cepeda"
+execute:
+  echo: false
+---
+
+```{r}
+#| label: setup
+#| message: false
+
+library(tidyverse)
+```
+
+```{r}
+#| label: storms-plot
+
+storms |>
+  # Keep only tropical depressions, tropical storms, and hurricanes
+  filter(status %in% c("tropical depression", "tropical storm", "hurricane")) |>
+  # Order status from weakest to strongest so the legend and colors match
+  mutate(
+    status = factor(
+      status,
+      levels = c("tropical depression", "tropical storm", "hurricane")
+    )
+  ) |>
+  # Keep one row per storm name and status in each year
+  distinct(year, name, status) |>
+  # Count the number of storms of each type per year
+  count(year, status) |>
+  ggplot(aes(x = year, y = n, fill = status)) +
+  geom_area() +
+  scale_fill_manual(
+    values = c(
+      "tropical depression" = "lightblue",
+      "tropical storm" = "orange",
+      "hurricane" = "darkred"
+    )
+  ) +
+  labs(
+    title = "Number of Storms per Year by Type",
+    subtitle = "Atlantic hurricane database (1975–2022)",
+    x = "Year",
+    y = "Number of Storms",
+    fill = "Storm Type",
+    caption = "Source: NOAA / dplyr::storms"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+#| label: storms-data
+
+storms_recent <- storms |>
+  #| cache: true
+  # Keep only storm observations from the year 2000 onward
+  filter(year >= 2000) |>
+  # Keep only the columns of interest
+  select(year, name, status, wind, pressure)
+```
+
+```{r}
+#| label: pressure-wind-plot
+
+storms_recent |>
+  # Map wind speed to x, pressure to y, and storm status to color
+  ggplot(aes(x = wind, y = pressure, color = status)) +
+  # Use alpha to make overlapping points semi-transparent
+  geom_point(alpha = 0.4) +
+  labs(
+    title = "Stronger Winds Correspond to Lower Atmospheric Pressure",
+    subtitle = "Atlantic storm observations by status (2000–2022)",
+    x = "Maximum Sustained Wind Speed (knots)",
+    y = "Atmospheric Pressure (millibars)",
+    color = "Storm Status",
+    caption = "Source: NOAA / dplyr::storms"
+  ) +
+  theme_minimal()
+```
+

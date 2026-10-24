@@ -1,0 +1,15 @@
+# R session & environment files
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+.Renviron
+
+# Quarto cache & rendered output
+/.quarto/
+*_cache/
+*_files/
+*.html
+
+# OS files
+.DS_Store
